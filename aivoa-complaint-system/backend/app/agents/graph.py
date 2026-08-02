@@ -1,6 +1,7 @@
 import json
 from typing import TypedDict, Optional, List
 
+from groq import BadRequestError
 from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.graph import StateGraph, START, END
@@ -14,18 +15,40 @@ from app.agents.prompts import (
 )
 
 
+class CompatibleGroqChat:
+    def __init__(self, api_key: str, primary_model: str, fallback_model: str | None, temperature: float):
+        self.primary_model = primary_model
+        self.fallback_model = fallback_model
+        self._primary_llm = ChatGroq(api_key=api_key, model=primary_model, temperature=temperature)
+        self._fallback_llm = ChatGroq(api_key=api_key, model=fallback_model, temperature=temperature) if fallback_model else None
+
+    def _is_decommissioned_error(self, error: Exception) -> bool:
+        message = str(error).lower()
+        return "decommissioned" in message or "not supported" in message or "unsupported" in message
+
+    def invoke(self, messages):
+        try:
+            return self._primary_llm.invoke(messages)
+        except BadRequestError as exc:
+            if self._fallback_llm and self._is_decommissioned_error(exc):
+                return self._fallback_llm.invoke(messages)
+            raise
+
+
 # --- LLM clients ---
 # gemma2-9b-it: fast, cheap, good for structured extraction / classification
-extraction_llm = ChatGroq(
+extraction_llm = CompatibleGroqChat(
     api_key=settings.groq_api_key,
-    model=settings.extraction_model,
+    primary_model=settings.extraction_model,
+    fallback_model="llama-3.1-8b-instant",
     temperature=0,
 )
 
 # llama-3.3-70b-versatile: stronger reasoning, used for risk assessment
-reasoning_llm = ChatGroq(
+reasoning_llm = CompatibleGroqChat(
     api_key=settings.groq_api_key,
-    model=settings.reasoning_model,
+    primary_model=settings.reasoning_model,
+    fallback_model="llama-3.1-8b-instant",
     temperature=0.2,
 )
 

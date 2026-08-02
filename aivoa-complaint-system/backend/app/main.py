@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.database import Base, engine
+from app.core.database import initialize_database
 from app.routers import complaints
 
 # Creates tables on startup if they don't exist yet. Fine for this assignment;
 # a real deployment would use Alembic migrations instead.
-Base.metadata.create_all(bind=engine)
+initialize_database()
 
 app = FastAPI(title="AIVOA Complaint Management System", version="0.1.0")
 
