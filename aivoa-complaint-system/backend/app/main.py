@@ -19,7 +19,7 @@ app.add_middleware(
         "http://10.0.10.47:5173",
         "http://10.0.2.15:5173",
     ],
-    allow_origin_regex=r"https://.*\.app\.github\.dev",
+    allow_origin_regex=r"https://.*\.(app\.github\.dev|vercel\.app)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
