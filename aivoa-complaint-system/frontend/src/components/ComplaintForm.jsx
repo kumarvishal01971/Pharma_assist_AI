@@ -17,7 +17,7 @@ function Field({ id, label, unit, children }) {
 
 export default function ComplaintForm() {
   const dispatch = useDispatch()
-  const { form, status, missingFields, extractionStatus, saveStatus, savedComplaintId } =
+  const { form, status, missingFields, extractionStatus, saveStatus, saveError, savedComplaintId } =
     useSelector((s) => s.complaint)
 
   const aiFilled = extractionStatus === 'succeeded'
@@ -227,6 +227,13 @@ export default function ComplaintForm() {
             {saveStatus === 'loading' ? 'Saving...' : '🗎 Save Complaint'}
           </button>
         </div>
+
+        {saveStatus === 'succeeded' && (
+          <div className="save-confirmation">Complaint saved successfully.</div>
+        )}
+        {saveStatus === 'failed' && saveError && (
+          <div className="save-error">{saveError}</div>
+        )}
       </div>
     </section>
   )

@@ -234,6 +234,25 @@ input, select, textarea { font-family: inherit; }
   margin-top: 4px;
 }
 
+.save-confirmation,
+.save-error {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.save-confirmation {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.save-error {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
 .form-actions {
   display: flex;
   justify-content: space-between;

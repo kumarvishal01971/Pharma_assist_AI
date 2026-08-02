@@ -105,34 +105,6 @@ const complaintSlice = createSlice({
         state.extractionProgressLabel = 'Analyzing document content and extracting key details...'
         state.extractionError = null
       })
-      .addMatcher(
-        (action) => action.type.endsWith('/fulfilled') && action.type.startsWith('complaint/extract'),
-        (state, action) => {
-          const result = action.payload
-          state.extractionStatus = 'succeeded'
-          state.form = {
-            ...state.form,
-            ...Object.fromEntries(
-              Object.entries(result.extracted).map(([k, v]) => [k, v ?? ''])
-            ),
-          }
-          state.status = 'Pending Triage'
-          state.completenessScore = result.completeness_score
-          state.missingFields = result.missing_fields
-          state.aiRiskClassification = result.ai_risk_classification
-          state.aiRiskRationale = result.ai_risk_rationale
-          state.aiSummary = result.ai_summary
-          state.extractionConfidence = result.extraction_confidence
-          state.possibleDuplicateIds = result.possible_duplicate_ids
-        }
-      )
-      .addMatcher(
-        (action) => action.type.endsWith('/rejected') && action.type.startsWith('complaint/extract'),
-        (state, action) => {
-          state.extractionStatus = 'failed'
-          state.extractionError = action.error.message
-        }
-      )
 
       // --- Save ---
       .addCase(saveComplaint.pending, (state) => {
@@ -165,6 +137,34 @@ const complaintSlice = createSlice({
           content: `Sorry, something went wrong: ${action.error.message}`,
         })
       })
+      .addMatcher(
+        (action) => action.type.endsWith('/fulfilled') && action.type.startsWith('complaint/extract'),
+        (state, action) => {
+          const result = action.payload
+          state.extractionStatus = 'succeeded'
+          state.form = {
+            ...state.form,
+            ...Object.fromEntries(
+              Object.entries(result.extracted).map(([k, v]) => [k, v ?? ''])
+            ),
+          }
+          state.status = 'Pending Triage'
+          state.completenessScore = result.completeness_score
+          state.missingFields = result.missing_fields
+          state.aiRiskClassification = result.ai_risk_classification
+          state.aiRiskRationale = result.ai_risk_rationale
+          state.aiSummary = result.ai_summary
+          state.extractionConfidence = result.extraction_confidence
+          state.possibleDuplicateIds = result.possible_duplicate_ids
+        }
+      )
+      .addMatcher(
+        (action) => action.type.endsWith('/rejected') && action.type.startsWith('complaint/extract'),
+        (state, action) => {
+          state.extractionStatus = 'failed'
+          state.extractionError = action.error.message
+        }
+      )
   },
 })
 

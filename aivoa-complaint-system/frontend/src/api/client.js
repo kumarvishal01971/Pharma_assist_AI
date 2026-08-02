@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '')
 
 async function handleResponse(res) {
   if (!res.ok) {
@@ -8,13 +8,22 @@ async function handleResponse(res) {
   return res.json()
 }
 
+function withNetworkMessage(error) {
+  if (error instanceof TypeError && /fetch/i.test(error.message)) {
+    return new Error('Unable to reach the backend. Check that the API URL is correct and the backend server is running.')
+  }
+  return error
+}
+
 export const api = {
   extractFromText: (text) =>
     fetch(`${BASE_URL}/api/complaints/extract`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
-    }).then(handleResponse),
+    })
+      .then(handleResponse)
+      .catch((error) => { throw withNetworkMessage(error) }),
 
   extractFromFile: (file) => {
     const formData = new FormData()
@@ -22,7 +31,9 @@ export const api = {
     return fetch(`${BASE_URL}/api/complaints/extract-file`, {
       method: 'POST',
       body: formData,
-    }).then(handleResponse)
+    })
+      .then(handleResponse)
+      .catch((error) => { throw withNetworkMessage(error) })
   },
 
   saveComplaint: (complaint) =>
@@ -30,12 +41,16 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(complaint),
-    }).then(handleResponse),
+    })
+      .then(handleResponse)
+      .catch((error) => { throw withNetworkMessage(error) }),
 
   chat: (message, complaintId) =>
     fetch(`${BASE_URL}/api/complaints/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, complaint_id: complaintId || null }),
-    }).then(handleResponse),
+    })
+      .then(handleResponse)
+      .catch((error) => { throw withNetworkMessage(error) }),
 }
