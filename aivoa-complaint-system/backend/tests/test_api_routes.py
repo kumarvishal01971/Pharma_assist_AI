@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 import app.agents.graph as graph_module
+from app.core import config
 from app.main import app
 
 
@@ -17,6 +18,11 @@ def test_docs_endpoint_is_available():
     response = client.get("/docs")
     assert response.status_code == 200
     assert "swagger-ui" in response.text.lower()
+
+
+def test_cors_settings_support_vercel_origin():
+    parsed_origins = config.parse_cors_origins("https://pharma-assist-ai-ten.vercel.app")
+    assert parsed_origins == ["https://pharma-assist-ai-ten.vercel.app"]
 
 
 def test_groq_wrapper_falls_back_when_primary_model_is_decommissioned(monkeypatch):
