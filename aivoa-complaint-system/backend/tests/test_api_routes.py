@@ -42,6 +42,18 @@ def test_blank_cors_origin_regex_falls_back_to_defaults():
     assert config.parse_cors_origin_regex(None) == config.DEFAULT_CORS_ALLOWED_ORIGIN_REGEX
 
 
+def test_get_cors_config_uses_generic_cors_origin_alias(monkeypatch):
+    monkeypatch.setattr(config.settings, "cors_allowed_origins", None, raising=False)
+    monkeypatch.setattr(config.settings, "cors_origins", "https://example.com", raising=False)
+    monkeypatch.setattr(config.settings, "cors_allowed_origin_regex", None, raising=False)
+    monkeypatch.setattr(config.settings, "cors_origin_regex", None, raising=False)
+
+    allowed_origins, allowed_regex = config.get_cors_config()
+
+    assert allowed_origins == ["https://example.com"]
+    assert allowed_regex == config.DEFAULT_CORS_ALLOWED_ORIGIN_REGEX
+
+
 def test_groq_wrapper_falls_back_when_primary_model_is_decommissioned(monkeypatch):
     class DummyBadRequest(Exception):
         pass

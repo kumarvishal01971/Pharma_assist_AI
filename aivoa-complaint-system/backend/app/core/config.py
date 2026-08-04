@@ -16,8 +16,10 @@ class Settings(BaseSettings):
     database_url: str = "mysql+pymysql://root:root@localhost:3306/aivoa_complaints"
     extraction_model: str = "gemma2-9b-it"
     reasoning_model: str = "llama-3.3-70b-versatile"
-    cors_allowed_origins: str = DEFAULT_CORS_ALLOWED_ORIGINS
-    cors_allowed_origin_regex: str = DEFAULT_CORS_ALLOWED_ORIGIN_REGEX
+    cors_allowed_origins: str | None = None
+    cors_allowed_origin_regex: str | None = None
+    cors_origins: str | None = None
+    cors_origin_regex: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=str(Path(__file__).resolve().parents[2] / ".env"),
@@ -38,3 +40,23 @@ def parse_cors_origin_regex(raw_value: str | None) -> str | None:
     if raw_value is None or not raw_value.strip():
         return DEFAULT_CORS_ALLOWED_ORIGIN_REGEX
     return raw_value
+
+
+def get_cors_config() -> tuple[list[str], str | None]:
+    raw_origins = next(
+        (
+            value
+            for value in (settings.cors_allowed_origins, settings.cors_origins)
+            if value is not None and str(value).strip()
+        ),
+        None,
+    )
+    raw_regex = next(
+        (
+            value
+            for value in (settings.cors_allowed_origin_regex, settings.cors_origin_regex)
+            if value is not None and str(value).strip()
+        ),
+        None,
+    )
+    return parse_cors_origins(raw_origins), parse_cors_origin_regex(raw_regex)
