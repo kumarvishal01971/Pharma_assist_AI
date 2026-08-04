@@ -25,6 +25,18 @@ def test_cors_settings_support_vercel_origin():
     assert parsed_origins == ["https://pharma-assist-ai-ten.vercel.app"]
 
 
+def test_blank_cors_origin_value_falls_back_to_defaults():
+    parsed_origins = config.parse_cors_origins("")
+    assert parsed_origins == [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://0.0.0.0:5173",
+        "http://10.0.10.47:5173",
+        "http://10.0.2.15:5173",
+        "https://pharma-assist-ai-ten.vercel.app",
+    ]
+
+
 def test_groq_wrapper_falls_back_when_primary_model_is_decommissioned(monkeypatch):
     class DummyBadRequest(Exception):
         pass
