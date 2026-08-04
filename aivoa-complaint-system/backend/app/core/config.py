@@ -32,3 +32,9 @@ def parse_cors_origins(raw_value: str | None) -> list[str]:
     if raw_value is None or not raw_value.strip():
         return [item.strip() for item in DEFAULT_CORS_ALLOWED_ORIGINS.split(",") if item.strip()]
     return [item.strip() for item in raw_value.split(",") if item.strip()]
+
+
+def parse_cors_origin_regex(raw_value: str | None) -> str | None:
+    if raw_value is None or not raw_value.strip():
+        return DEFAULT_CORS_ALLOWED_ORIGIN_REGEX
+    return raw_value

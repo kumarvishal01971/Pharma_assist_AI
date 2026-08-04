@@ -37,6 +37,11 @@ def test_blank_cors_origin_value_falls_back_to_defaults():
     ]
 
 
+def test_blank_cors_origin_regex_falls_back_to_defaults():
+    assert config.parse_cors_origin_regex("") == config.DEFAULT_CORS_ALLOWED_ORIGIN_REGEX
+    assert config.parse_cors_origin_regex(None) == config.DEFAULT_CORS_ALLOWED_ORIGIN_REGEX
+
+
 def test_groq_wrapper_falls_back_when_primary_model_is_decommissioned(monkeypatch):
     class DummyBadRequest(Exception):
         pass

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.config import parse_cors_origins, settings
+from app.core.config import parse_cors_origin_regex, parse_cors_origins, settings
 from app.core.database import initialize_database
 from app.routers import complaints
 
@@ -16,7 +16,7 @@ allowed_origins = parse_cors_origins(settings.cors_allowed_origins)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=settings.cors_allowed_origin_regex or None,
+    allow_origin_regex=parse_cors_origin_regex(settings.cors_allowed_origin_regex),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
